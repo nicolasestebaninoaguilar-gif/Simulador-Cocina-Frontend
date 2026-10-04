@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <!--
+      Proyecto: Simulador de Cocina
+      Evidencia: GA7-220501096-AA4-EV03
+      Descripción: Componente front-end del proyecto formativo.
+      Tecnologías: HTML5, CSS3 y JavaScript.
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Cocina</title>
+  <style>
+  /* Estilos generales y variables de diseño del proyecto */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --naranja: #e86b00;
+      --naranja-oscuro: #c45a00;
+      --naranja-claro: #fff0e0;
+      --fondo: #f9f4ef;
+      --blanco: #ffffff;
+      --texto: #2c2c2c;
+      --gris: #777;
+      --radio: 12px;
+      --sidebar: 260px;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ── */
+    #topbar {
+      background: var(--naranja);
+      color: white;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    #topbar .logo { font-size: 22px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+    #topbar .logo span { font-size: 26px; }
+    #topbar nav { display: flex; gap: 6px; }
+    #topbar nav a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 18px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    #topbar nav a:hover { background: rgba(255,255,255,0.2); }
+    #topbar nav a.activo { background: rgba(255,255,255,0.25); }
+    #topbar .perfil-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #topbar .perfil-btn:hover { background: rgba(255,255,255,0.35); }
+
+    /* ── LAYOUT ── */
+    #layout {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 60px;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar);
+      background: var(--blanco);
+      border-right: 1px solid #f0e0d0;
+      padding: 24px 16px;
+      position: fixed;
+      top: 60px; left: 0; bottom: 0;
+      overflow-y: auto;
+    }
+    .sidebar-section { margin-bottom: 28px; }
+    .sidebar-section h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gris);
+      margin-bottom: 10px;
+      padding-left: 8px;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--texto);
+      transition: background 0.15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .sidebar-item:hover { background: var(--naranja-claro); color: var(--naranja); }
+    .sidebar-item.activo { background: var(--naranja-claro); color: var(--naranja); font-weight: bold; }
+    .sidebar-item .icon { font-size: 18px; width: 24px; text-align: center; }
+
+    .stat-mini {
+      background: var(--naranja-claro);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .stat-mini .num { font-size: 26px; font-weight: bold; color: var(--naranja); }
+    .stat-mini .lbl { font-size: 12px; color: var(--gris); }
+
+    /* ── CONTENIDO PRINCIPAL ── */
+    #main {
+      margin-left: var(--sidebar);
+      flex: 1;
+      padding: 32px;
+      min-height: calc(100vh - 60px);
+    }
+
+    /* ── SECCIONES ── */
+    .seccion { display: none; }
+    .seccion.activa { display: block; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--naranja) 0%, var(--naranja-oscuro) 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 48px 40px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+    }
+    .hero-text h1 { font-size: 32px; margin-bottom: 10px; }
+    .hero-text p { font-size: 16px; opacity: 0.9; margin-bottom: 20px; max-width: 440px; line-height: 1.6; }
+    .hero img {
+      width: 280px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--blanco);
+      border-radius: var(--radio);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .stat-card .num { font-size: 32px; font-weight: bold; color: var(--naranja); }
+    .stat-card .lbl { font-size: 13px; color: var(--gris); margin-top: 4px; }
+
+    /* ── PAGE TITLE ── */
+    .page-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ── RECETAS GRID ── */
+    .recetas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .receta-card {
+      background: var(--blanco);
+      border-radius: var(--radio);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .receta-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+    .receta-card img { width: 100%; height: 170px; object-fit: cover; }
+    .receta-card-body { padding: 14px; }
+    .receta-card-body h3 { color: var(--naranja); font-size: 16px; margin-bottom: 8px; }
+    .badge {
+      display: inline-block;
+      background: var(--naranja-claro);
+      color: var(--naranja-oscuro);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+
+    /* ── BOTONES ── */
+    .boton {
+      background: var(--naranja);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .boton:hover { background: var(--naranja-oscuro); }
+    .boton:active { transform: scale(0.97); }
+    .boton.secundario {
+      background: var(--blanco);
+      color: var(--naranja);
+      border: 2px solid var(--naranja);
+    }
+    .boton.secundario:hover { background: var(--naranja-claro); }
+    .boton.lg { padding: 14px 32px; font-size: 16px; border-radius: 10px; }
+
+    /* ── SIMULADOR ── */
+    .sim-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+    }
+    .sim-card {
+      background: var(--blanco);
+      border-radius: var(--radio);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .sim-card img { width: 100%; height: 280px; object-fit: cover; }
+    .sim-card-body { padding: 24px; }
+    .sim-card-body h2 { color: var(--naranja); font-size: 22px; margin-bottom: 12px; }
+    .progreso-barra {
+      width: 100%; background: #f0dece; border-radius: 10px; height: 10px; margin: 14px 0;
+    }
+    .progreso-fill {
+      height: 10px; background: var(--naranja); border-radius: 10px; transition: width 0.4s ease;
+    }
+    #sim-paso-num { font-size: 13px; color: var(--gris); }
+    #sim-paso-texto { font-size: 17px; line-height: 1.8; margin-top: 8px; }
+
+    .sim-panel {
+      background: var(--blanco);
+      border-radius: var(--radio);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 20px;
+    }
+    .sim-panel h3 { color: var(--naranja); margin-bottom: 14px; font-size: 16px; }
+    .pasos-lista { list-style: none; }
+    .pasos-lista li {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--gris);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+    .pasos-lista li.completado { background: #d4edda; color: #155724; }
+    .pasos-lista li.actual { background: var(--naranja-claro); color: var(--naranja-oscuro); font-weight: bold; }
+    .pasos-lista li .paso-num {
+      min-width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #ddd;
+      color: #555;
+      font-size: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold;
+    }
+    .pasos-lista li.completado .paso-num { background: #28a745; color: white; }
+    .pasos-lista li.actual .paso-num { background: var(--naranja); color: white; }
+
+    #sim-completado {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    #sim-completado .emoji { font-size: 72px; margin-bottom: 16px; }
+    #sim-completado h2 { color: var(--naranja); font-size: 28px; margin-bottom: 10px; }
+    #sim-completado p { color: var(--gris); font-size: 16px; margin-bottom: 24px; }
+
+    /* ── PERFIL ── */
+    .perfil-grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; }
+    .perfil-avatar-wrap {
+      background: linear-gradient(135deg, var(--naranja), var(--naranja-oscuro));
+      border-radius: var(--radio);
+      padding: 32px 20px;
+      text-align: center;
+      color: white;
+    }
+    .perfil-avatar {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: white;
+      color: var(--naranja);
+      font-size: 36px;
+      font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    }
+    .perfil-avatar-wrap h2 { font-size: 22px; margin-bottom: 6px; }
+    .perfil-avatar-wrap p { font-size: 14px; opacity: 0.85; }
+
+    .form-card {
+      background: var(--blanco);
+      border-radius: var(--radio);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 24px;
+    }
+    .form-card h3 { color: var(--naranja); margin-bottom: 18px; font-size: 18px; }
+    .form-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grupo { margin-bottom: 16px; }
+    .form-grupo label {
+      display: block; font-size: 12px; font-weight: bold;
+      color: var(--gris); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+    }
+    .form-grupo input, .form-grupo select {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid #e0d4c8; border-radius: 8px;
+      font-size: 15px; color: var(--texto); background: white;
+      appearance: none;
+    }
+    .form-grupo input:focus, .form-grupo select:focus {
+      outline: none; border-color: var(--naranja);
+    }
+    #perfil-guardado {
+      display: none; background: #d4edda; color: #155724;
+      padding: 10px 16px; border-radius: 8px; margin-top: 12px; font-size: 14px;
+    }
+
+    .favoritos-tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .favoritos-tabla th {
+      text-align: left; padding: 10px 12px;
+      border-bottom: 2px solid #f0e0d0; color: var(--gris); font-size: 12px; text-transform: uppercase;
+    }
+    .favoritos-tabla td { padding: 12px; border-bottom: 1px solid #faf0e8; }
+    .favoritos-tabla tr:hover td { background: var(--naranja-claro); }
+    .fav-remove { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 16px; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.abierto { display: flex; }
+    .modal {
+      background: white; border-radius: 16px;
+      width: 560px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
+    .modal img { width: 100%; height: 240px; object-fit: cover; border-radius: 16px 16px 0 0; }
+    .modal-body { padding: 24px; }
+    .modal-body h2 { color: var(--naranja); font-size: 22px; margin-bottom: 10px; }
+    .modal-body ul { padding-left: 20px; line-height: 2; font-size: 14px; color: #555; }
+    .modal-footer { padding: 0 24px 24px; display: flex; gap: 12px; }
+    .modal-cerrar {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(0,0,0,0.4); border: none; color: white;
+      width: 32px; height: 32px; border-radius: 50%; font-size: 16px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #333; color: white;
+      padding: 12px 20px; border-radius: 10px;
+      font-size: 14px; opacity: 0; transition: opacity 0.3s;
+      z-index: 500; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    }
+    #toast.visible { opacity: 1; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--naranja);
+      color: white;
+      text-align: center;
+      padding: 18px;
+      font-size: 14px;
+      margin-left: var(--sidebar);
+    }
+
+    /* ── DESTACADAS FILA ── */
+    .destacadas-fila {
+      display: flex; gap: 16px; margin-bottom: 28px; overflow-x: auto; padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .destacadas-fila::-webkit-scrollbar { display: none; }
+    .dest-card {
+      flex-shrink: 0; width: 200px; background: var(--blanco);
+      border-radius: var(--radio); overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .dest-card:hover { transform: translateY(-3px); }
+    .dest-card img { width: 100%; height: 120px; object-fit: cover; }
+    .dest-card p { padding: 10px 12px; font-size: 13px; font-weight: bold; color: var(--naranja); }
+  </style>
+</head>
+<body>
+<!-- Contenido principal de la aplicación -->
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="logo"><span>🍳</span> Simulador de Cocina</div>
+  <nav>
+    <a href="#" id="nav-inicio" class="activo" onclick="mostrarSeccion('inicio')">🏠 Inicio</a>
+    <a href="#" id="nav-recetas" onclick="mostrarSeccion('recetas')">📋 Recetas</a>
+    <a href="#" id="nav-simulador" onclick="mostrarSeccion('simulador')">▶ Simulador</a>
+  </nav>
+  <button class="perfil-btn" onclick="mostrarSeccion('perfil')">👤 <span id="top-nombre">Mi Perfil</span></button>
+</div>
+
+<div id="layout">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-section">
+      <h4>Menú</h4>
+      <button class="sidebar-item activo" id="sb-inicio" onclick="mostrarSeccion('inicio')">
+        <span class="icon">🏠</span> Inicio
+      </button>
+      <button class="sidebar-item" id="sb-recetas" onclick="mostrarSeccion('recetas')">
+        <span class="icon">📋</span> Recetas
+      </button>
+      <button class="sidebar-item" id="sb-simulador" onclick="mostrarSeccion('simulador')">
+        <span class="icon">▶</span> Simulador
+      </button>
+      <button class="sidebar-item" id="sb-perfil" onclick="mostrarSeccion('perfil')">
+        <span class="icon">👤</span> Perfil
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <h4>Tu progreso</h4>
+      <div class="stat-mini">
+        <div class="num" id="sb-completadas">0</div>
+        <div class="lbl">Completadas</div>
+      </div>
+      <div class="stat-mini">
+        <div class="num" id="sb-favoritos">0</div>
+        <div class="lbl">Favoritas</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <h4>Acceso rápido</h4>
+      <button class="sidebar-item" onclick="iniciarSimulacionDirecta()">
+        <span class="icon">🚀</span> Iniciar simulación
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- ===== INICIO ===== -->
+    <div id="inicio" class="seccion activa">
+      <div class="hero">
+        <div class="hero-text">
+          <h1>¡Bienvenido, <span id="nombre-bienvenida">Chef</span>! 👋</h1>
+          <p>Aprende a preparar recetas mediante simulaciones interactivas paso a paso. Elige una receta y empieza a cocinar.</p>
+          <button class="boton lg" onclick="mostrarSeccion('recetas')">🍽 Ver Recetas</button>
+          <button class="boton secundario lg" onclick="iniciarSimulacionDirecta()" style="margin-left:12px">▶ Iniciar Simulación</button>
+        </div>
+        <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&auto=format&fit=crop" alt="Cocina">
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="num" id="stat-completadas">0</div><div class="lbl">Recetas completadas</div></div>
+        <div class="stat-card"><div class="num" id="stat-favoritos">0</div><div class="lbl">Favoritas</div></div>
+        <div class="stat-card"><div class="num">6</div><div class="lbl">Recetas disponibles</div></div>
+        <div class="stat-card"><div class="num" id="stat-nivel">—</div><div class="lbl">Tu nivel</div></div>
+      </div>
+
+      <p class="page-title">🔥 Recetas destacadas</p>
+      <div class="destacadas-fila" id="destacadas-fila"></div>
+    </div>
+
+    <!-- ===== RECETAS ===== -->
+    <div id="recetas" class="seccion">
+      <p class="page-title">📋 Todas las recetas</p>
+      <div class="recetas-grid" id="recetas-grid"></div>
+    </div>
+
+    <!-- ===== SIMULADOR ===== -->
+    <div id="simulador" class="seccion">
+      <div id="sim-activo">
+        <p class="page-title">▶ Simulador de cocina</p>
+        <div class="sim-layout">
+          <div>
+            <div class="sim-card">
+              <img id="sim-img" src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&auto=format&fit=crop" alt="">
+              <div class="sim-card-body">
+                <h2 id="sim-titulo">Selecciona una receta para simular</h2>
+                <div class="progreso-barra"><div class="progreso-fill" id="sim-progreso" style="width:0%"></div></div>
+                <p id="sim-paso-num"></p>
+                <p id="sim-paso-texto" style="margin-top:8px; color:#555;">Ve a Recetas y presiona "Simular" en cualquier receta.</p>
+                <div style="margin-top:20px; display:flex; gap:12px;">
+                  <button class="boton secundario" id="btn-anterior" onclick="pasoAnterior()" style="display:none">⬅ Anterior</button>
+                  <button class="boton" id="btn-siguiente" onclick="pasoSiguiente()" style="display:none">Siguiente ➡</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sim-panel">
+            <h3>📋 Pasos de la receta</h3>
+            <ul class="pasos-lista" id="pasos-lista"></ul>
+          </div>
+        </div>
+      </div>
+      <div id="sim-completado">
+        <div class="emoji">🎉</div>
+        <h2>¡Receta completada!</h2>
+        <p id="sim-completado-nombre"></p>
+        <button class="boton lg" onclick="mostrarSeccion('recetas')" style="margin-right:12px">Ver más recetas</button>
+        <button class="boton secundario lg" onclick="reiniciarSim()">Repetir receta</button>
+      </div>
+    </div>
+
+    <!-- ===== PERFIL ===== -->
+    <div id="perfil" class="seccion">
+      <p class="page-title">👤 Mi Perfil</p>
+      <div class="perfil-grid">
+        <div>
+          <div class="perfil-avatar-wrap">
+            <div class="perfil-avatar" id="perfil-avatar">👤</div>
+            <h2 id="perfil-nombre-display">Chef</h2>
+            <p id="perfil-nivel-display">Nivel: Principiante</p>
+          </div>
+          <div style="margin-top:16px;">
+            <div class="stat-card"><div class="num" id="pf-completadas">0</div><div class="lbl">Recetas completadas</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="form-card" style="margin-bottom:20px">
+            <h3>Editar perfil</h3>
+            <div class="form-fila">
+              <div class="form-grupo">
+                <label>Nombre</label>
+                <input type="text" id="input-nombre" placeholder="Ej: María" maxlength="30">
+              </div>
+              <div class="form-grupo">
+                <label>Correo electrónico</label>
+                <input type="email" id="input-email" placeholder="Ej: maria@email.com">
+              </div>
+            </div>
+            <div class="form-grupo">
+              <label>Nivel de cocina</label>
+              <select id="input-nivel">
+                <option value="Principiante">🟢 Principiante</option>
+                <option value="Intermedio">🟡 Intermedio</option>
+                <option value="Avanzado">🔴 Avanzado</option>
+              </select>
+            </div>
+            <button class="boton" onclick="guardarPerfil()">💾 Guardar cambios</button>
+            <div id="perfil-guardado">✅ ¡Perfil guardado correctamente!</div>
+          </div>
+
+          <div class="form-card">
+            <h3>⭐ Recetas favoritas</h3>
+            <table class="favoritos-tabla">
+              <thead>
+                <tr>
+                  <th>Receta</th><th>Dificultad</th><th>Tiempo</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="favoritos-tbody">
+                <tr><td colspan="4" style="color:var(--gris); padding:16px;">Sin favoritos aún.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer>Simulador de Cocina © 2026 — Todos los derechos reservados</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="cerrarModalFuera(event)">
+  <div class="modal" style="position:relative" id="modal">
+    <button class="modal-cerrar" onclick="cerrarModalBtn()">✕</button>
+    <img id="modal-img" src="" alt="">
+    <div class="modal-body">
+      <h2 id="modal-titulo"></h2>
+      <p style="margin-bottom:12px;"><span id="modal-badge-tiempo" class="badge"></span><span id="modal-badge-dif" class="badge"></span></p>
+      <h4 style="margin-bottom:8px; font-size:14px; color:#555;">🧂 Ingredientes:</h4>
+      <ul id="modal-ingredientes"></ul>
+    </div>
+    <div class="modal-footer">
+      <button class="boton" onclick="simularDesdeModal()">▶ Simular esta receta</button>
+      <button class="boton secundario" id="btn-fav-modal" onclick="toggleFavorito()">⭐ Favorito</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// Funciones e interacciones del simulador de cocina
+  const recetas = [
+    { id:1, nombre:"Pasta Carbonara", tiempo:"25 min", dificultad:"Media",
+      imagen:"https://images.unsplash.com/photo-1612874742237-6526221588e3?w=600&auto=format&fit=crop",
+      ingredientes:["200g de pasta","100g de panceta","2 huevos","50g de parmesano","Sal y pimienta"],
+      pasos:["Llena una olla con agua y llévala a ebullición con sal.","Cocina la pasta según el paquete (≈10 min).","Corta la panceta y fríela sin aceite hasta dorar.","Mezcla huevos con parmesano rallado y pimienta.","Escurre la pasta reservando un poco del agua.","Mezcla pasta con panceta fuera del fuego.","Agrega la mezcla de huevo revolviendo rápido.","¡Sirve con más queso y pimienta!"]
+    },
+    { id:2, nombre:"Tacos de Pollo", tiempo:"30 min", dificultad:"Fácil",
+      imagen:"https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&auto=format&fit=crop",
+      ingredientes:["300g de pechuga","Tortillas de maíz","Aguacate","Tomate","Cebolla","Cilantro","Limón"],
+      pasos:["Corta el pollo y sazona con sal, pimienta y comino.","Calienta una sartén con aceite.","Cocina el pollo 6-8 min hasta dorar.","Calienta las tortillas 30 seg por lado.","Pica tomate, cebolla y cilantro.","Corta el aguacate con limón.","Arma los tacos con todos los ingredientes.","¡Exprime limón y disfruta!"]
+    },
+    { id:3, nombre:"Ensalada César", tiempo:"15 min", dificultad:"Fácil",
+      imagen:"https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&auto=format&fit=crop",
+      ingredientes:["Lechuga romana","Crutones","Parmesano","Aderezo César","Pollo opcional"],
+      pasos:["Lava y seca la lechuga.","Córtala en trozos medianos.","Cocina el pollo a la plancha.","Mezcla lechuga con aderezo.","Agrega crutones y parmesano.","Pon el pollo encima.","¡Sirve inmediatamente!"]
+    },
+    { id:4, nombre:"Tortilla Española", tiempo:"35 min", dificultad:"Media",
+      imagen:"https://images.unsplash.com/photo-1591299177061-2151e53fcaea?w=600&auto=format&fit=crop",
+      ingredientes:["4 huevos","3 papas medianas","1 cebolla","Aceite de oliva","Sal"],
+      pasos:["Pela y rebana papas y cebolla.","Fríe papas y cebolla a fuego bajo 20 min.","Escurre bien del aceite.","Bate los huevos y mezcla con las papas.","Vierte en sartén antiadherente.","Cocina a fuego medio 5-6 min.","Voltea con un plato y cocina 3-4 min más.","¡Deja reposar y sirve!"]
+    },
+    { id:5, nombre:"Brownie de Chocolate", tiempo:"40 min", dificultad:"Fácil",
+      imagen:"https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&auto=format&fit=crop",
+      ingredientes:["200g chocolate negro","150g mantequilla","200g azúcar","3 huevos","100g harina","Sal"],
+      pasos:["Precalienta el horno a 180°C.","Derrite chocolate con mantequilla.","Agrega azúcar y mezcla.","Agrega los huevos uno a uno.","Incorpora harina tamizada con sal.","Vierte en molde engrasado.","Hornea 25-30 min.","¡Enfría, corta y disfruta!"]
+    },
+    { id:6, nombre:"Sopa de Tomate", tiempo:"30 min", dificultad:"Fácil",
+      imagen:"https://images.unsplash.com/photo-1547592180-85f173990554?w=600&auto=format&fit=crop",
+      ingredientes:["6 tomates maduros","1 cebolla","2 dientes de ajo","Caldo de verduras","Albahaca","Aceite de oliva"],
+      pasos:["Pica la cebolla y el ajo.","Sofríe la cebolla en aceite 5 min.","Agrega el ajo y cocina 1 min.","Añade los tomates y cocina 10 min.","Agrega el caldo y hierve.","Cocina a fuego bajo 10 min más.","Licúa todo.","¡Sirve con albahaca y aceite!"]
+    }
+  ];
+
+  let pasoActual = 0;
+  let recetaActual = null;
+  let recetaModalActual = null;
+  let recetasCompletadas = JSON.parse(localStorage.getItem('recetasCompletadas') || '[]');
+  let favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
+  let perfil = JSON.parse(localStorage.getItem('perfil') || '{}');
+
+  // ── NAVEGACIÓN ──
+  function mostrarSeccion(id) {
+    document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+    document.getElementById(id).classList.add('activa');
+    // topbar
+    document.querySelectorAll('#topbar nav a').forEach(a => a.classList.remove('activo'));
+    const navEl = document.getElementById('nav-' + id);
+    if (navEl) navEl.classList.add('activo');
+    // sidebar
+    document.querySelectorAll('.sidebar-item').forEach(a => a.classList.remove('activo'));
+    const sbEl = document.getElementById('sb-' + id);
+    if (sbEl) sbEl.classList.add('activo');
+    if (id === 'recetas') renderRecetas();
+    if (id === 'perfil') cargarPerfil();
+    if (id === 'inicio') actualizarInicio();
+    window.scrollTo(0,0);
+    return false;
+  }
+
+  // ── TOAST ──
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 2800);
+  }
+
+  // ── INICIO ──
+  function actualizarInicio() {
+    const nombre = perfil.nombre || 'Chef';
+    document.getElementById('nombre-bienvenida').textContent = nombre;
+    document.getElementById('top-nombre').textContent = nombre;
+    document.getElementById('stat-completadas').textContent = recetasCompletadas.length;
+    document.getElementById('stat-favoritos').textContent = favoritos.length;
+    document.getElementById('stat-nivel').textContent = (perfil.nivel || 'N/A').charAt(0).toUpperCase() + (perfil.nivel || '').slice(1,3);
+    document.getElementById('sb-completadas').textContent = recetasCompletadas.length;
+    document.getElementById('sb-favoritos').textContent = favoritos.length;
+    document.getElementById('destacadas-fila').innerHTML = recetas.slice(0,5).map(r => `
+      <div class="dest-card" onclick="abrirModal(${r.id})">
+        <img src="${r.imagen}" alt="${r.nombre}">
+        <p>${r.nombre}</p>
+      </div>
+    `).join('');
+  }
+
+  function iniciarSimulacionDirecta() {
+    recetaActual = recetas[0]; pasoActual = 0;
+    mostrarSeccion('simulador'); renderSim();
+  }
+
+  // ── RECETAS ──
+  function renderRecetas() {
+    document.getElementById('recetas-grid').innerHTML = recetas.map(r => `
+      <div class="receta-card" onclick="abrirModal(${r.id})">
+        <img src="${r.imagen}" alt="${r.nombre}">
+        <div class="receta-card-body">
+          <h3>${r.nombre}</h3>
+          <span class="badge">⏱ ${r.tiempo}</span>
+          <span class="badge">📊 ${r.dificultad}</span>
+          ${favoritos.includes(r.id) ? '<span class="badge" style="background:#fff3cd;color:#856404">⭐ Favorita</span>' : ''}
+          ${recetasCompletadas.includes(r.id) ? '<span class="badge" style="background:#d4edda;color:#155724">✅ Completada</span>' : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── MODAL ──
+  function abrirModal(id) {
+    recetaModalActual = recetas.find(r => r.id === id);
+    document.getElementById('modal-img').src = recetaModalActual.imagen;
+    document.getElementById('modal-titulo').textContent = recetaModalActual.nombre;
+    document.getElementById('modal-badge-tiempo').textContent = '⏱ ' + recetaModalActual.tiempo;
+    document.getElementById('modal-badge-dif').textContent = '📊 ' + recetaModalActual.dificultad;
+    document.getElementById('modal-ingredientes').innerHTML =
+      recetaModalActual.ingredientes.map(i => `<li>${i}</li>`).join('');
+    actualizarBtnFav();
+    document.getElementById('modal-overlay').classList.add('abierto');
+  }
+
+  function cerrarModalFuera(e) {
+    if (e.target === document.getElementById('modal-overlay'))
+      document.getElementById('modal-overlay').classList.remove('abierto');
+  }
+  function cerrarModalBtn() { document.getElementById('modal-overlay').classList.remove('abierto'); }
+
+  function actualizarBtnFav() {
+    if (!recetaModalActual) return;
+    document.getElementById('btn-fav-modal').textContent =
+      favoritos.includes(recetaModalActual.id) ? '💛 Quitar de favoritos' : '⭐ Agregar a favoritos';
+  }
+
+  function simularDesdeModal() {
+    recetaActual = recetaModalActual; pasoActual = 0;
+    cerrarModalBtn(); mostrarSeccion('simulador'); renderSim();
+  }
+
+  function toggleFavorito() {
+    const id = recetaModalActual.id;
+    if (favoritos.includes(id)) { favoritos = favoritos.filter(f => f !== id); toast('Quitado de favoritos'); }
+    else { favoritos.push(id); toast('⭐ Agregado a favoritos'); }
+    localStorage.setItem('favoritos', JSON.stringify(favoritos));
+    actualizarBtnFav(); actualizarFavoritos(); actualizarInicio();
+  }
+
+  // ── SIMULADOR ──
+  function renderSim() {
+    if (!recetaActual) return;
+    const total = recetaActual.pasos.length;
+    document.getElementById('sim-completado').style.display = 'none';
+    document.getElementById('sim-activo').style.display = 'block';
+    document.getElementById('sim-img').src = recetaActual.imagen;
+    document.getElementById('sim-titulo').textContent = '🍳 ' + recetaActual.nombre;
+    document.getElementById('sim-progreso').style.width = ((pasoActual + 1) / total * 100) + '%';
+    document.getElementById('sim-paso-num').textContent = `Paso ${pasoActual + 1} de ${total}`;
+    document.getElementById('sim-paso-texto').textContent = recetaActual.pasos[pasoActual];
+    document.getElementById('btn-anterior').style.display = pasoActual > 0 ? 'inline-flex' : 'none';
+    document.getElementById('btn-siguiente').style.display = 'inline-flex';
+    document.getElementById('btn-siguiente').textContent = pasoActual < total - 1 ? 'Siguiente ➡' : '✅ Finalizar';
+    // lista de pasos
+    document.getElementById('pasos-lista').innerHTML = recetaActual.pasos.map((p, i) => {
+      let cls = i < pasoActual ? 'completado' : i === pasoActual ? 'actual' : '';
+      return `<li class="${cls}"><span class="paso-num">${i < pasoActual ? '✓' : i + 1}</span>${p}</li>`;
+    }).join('');
+  }
+
+  function pasoSiguiente() {
+    if (!recetaActual) return;
+    if (pasoActual < recetaActual.pasos.length - 1) { pasoActual++; renderSim(); }
+    else completarReceta();
+  }
+
+  function pasoAnterior() {
+    if (pasoActual > 0) { pasoActual--; renderSim(); }
+  }
+
+  function completarReceta() {
+    if (!recetasCompletadas.includes(recetaActual.id)) {
+      recetasCompletadas.push(recetaActual.id);
+      localStorage.setItem('recetasCompletadas', JSON.stringify(recetasCompletadas));
+    }
+    document.getElementById('sim-activo').style.display = 'none';
+    document.getElementById('sim-completado').style.display = 'block';
+    document.getElementById('sim-completado-nombre').textContent = '¡Completaste: ' + recetaActual.nombre + '!';
+    toast('🎉 ¡Receta completada!');
+  }
+
+  function reiniciarSim() {
+    pasoActual = 0;
+    document.getElementById('sim-completado').style.display = 'none';
+    document.getElementById('sim-activo').style.display = 'block';
+    renderSim();
+  }
+
+  // ── PERFIL ──
+  function cargarPerfil() {
+    if (perfil.nombre) document.getElementById('input-nombre').value = perfil.nombre;
+    if (perfil.email) document.getElementById('input-email').value = perfil.email;
+    if (perfil.nivel) document.getElementById('input-nivel').value = perfil.nivel;
+    document.getElementById('perfil-nombre-display').textContent = perfil.nombre || 'Chef';
+    document.getElementById('perfil-nivel-display').textContent = 'Nivel: ' + (perfil.nivel || 'Principiante');
+    document.getElementById('perfil-avatar').textContent = (perfil.nombre || 'C').charAt(0).toUpperCase();
+    document.getElementById('pf-completadas').textContent = recetasCompletadas.length;
+    actualizarFavoritos();
+  }
+
+  function guardarPerfil() {
+    perfil.nombre = document.getElementById('input-nombre').value || 'Chef';
+    perfil.email = document.getElementById('input-email').value;
+    perfil.nivel = document.getElementById('input-nivel').value || 'Principiante';
+    localStorage.setItem('perfil', JSON.stringify(perfil));
+    document.getElementById('perfil-nombre-display').textContent = perfil.nombre;
+    document.getElementById('perfil-nivel-display').textContent = 'Nivel: ' + perfil.nivel;
+    document.getElementById('perfil-avatar').textContent = perfil.nombre.charAt(0).toUpperCase();
+    document.getElementById('top-nombre').textContent = perfil.nombre;
+    document.getElementById('perfil-guardado').style.display = 'block';
+    setTimeout(() => document.getElementById('perfil-guardado').style.display = 'none', 3000);
+    toast('✅ Perfil guardado');
+  }
+
+  function actualizarFavoritos() {
+    const tbody = document.getElementById('favoritos-tbody');
+    if (favoritos.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="color:var(--gris); padding:16px;">Sin favoritos aún.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = favoritos.map(id => {
+      const r = recetas.find(x => x.id === id);
+      return r ? `<tr>
+        <td><strong>${r.nombre}</strong></td>
+        <td><span class="badge">${r.dificultad}</span></td>
+        <td>${r.tiempo}</td>
+        <td><button class="fav-remove" onclick="quitarFav(${id})" title="Quitar">🗑</button></td>
+      </tr>` : '';
+    }).join('');
+  }
+
+  function quitarFav(id) {
+    favoritos = favoritos.filter(f => f !== id);
+    localStorage.setItem('favoritos', JSON.stringify(favoritos));
+    actualizarFavoritos(); actualizarInicio(); toast('Quitado de favoritos');
+  }
+
+  // ── INIT ──
+  actualizarInicio();
+</script>
+</body>
+</html>
